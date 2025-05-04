@@ -1,0 +1,21 @@
+{
+    "LineItems": [
+        {
+            "Description of Goods": "Ayukanti Lehyam 5.5 gm MRP 250",
+            "HSN/SAC": "30049011",
+            "Batch No": "AKL-2054",
+            "Mfg Date": "01.01.2025",
+            "Expiry Date": "30.12.2026",
+            "MRP": "250.00",
+            "QTY": "250.00",
+            "UOM": "PC",
+            "Rate": "90.47",
+            "Discount%": "0.00",
+            "Discount Value": "0.00",
+            "Taxable Value": "22,617.12",
+            "IGST Rate": "5.00",
+            "IGST Amount": "1,130.88",
+            "Total": "23,748.00"
+        }
+    ]
+}
