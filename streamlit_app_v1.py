@@ -242,14 +242,14 @@ def main():
                 You are a precise and detail-oriented invoice data extraction assistant. Your task is to analyze the provided invoice and extract all line items into a structured JSON array. Each line item should be represented as an individual JSON object, and all specified fields should be included for every line item. If a field is missing or not identifiable for a specific line item, use an empty string ("") as its value.
                 
                 Fields to Extract for Each Line Item:
-                Description of Goods: Description of the items or services listed in the invoice.
+                Description of Goods: Description of the items or services listed in the invoice. Don't include mrp in the description.
                 HSN/SAC: Harmonized System of Nomenclature or Service Accounting Code.
                 Batch No: Batch number associated with the goods.
                 Mfg Date: Manufacturing date of the goods.
                 Expiry Date: Expiry date of the goods.
                 MRP: Maximum Retail Price of the item.
-                QTY: Quantity of the goods.
-                UOM: Unit of Measure for the quantity (e.g., pcs, kg, ltr).
+                QTY: Quantity of the goods. It contains upto three decimal points so don't add the last 0 anywhere else if it is in another line.
+                UOM: Unit of Measure for the quantity (e.g., pcs, kg, ltr). 
                 Rate: Price per unit of the goods.
                 Discount%: Discount percentage applied.
                 Discount Value: Total discount value in currency.
@@ -266,6 +266,7 @@ def main():
                 Include all fields for each line item. If a field is not present for a line item, return an empty string ("").
                 Ensure numerical fields are extracted accurately, retaining precision.
                 Provide the complete structured JSON output, even if the invoice contains a single line item.
+                Keep the column value as single string don't make multiple lines.
                 """
                 
                 # Process the PDF
