@@ -31,7 +31,7 @@ def initialize_gemini():
         return None
     
     genai.configure(api_key=api_key)
-    return genai.GenerativeModel(model_name='gemini-2.0-flash')
+    return genai.GenerativeModel(model_name='gemini-2.5-flash')
 
 model = initialize_gemini()
 
@@ -180,29 +180,57 @@ def process_json_data(input_json):
     """Add calculated fields to the JSON data"""
     # Process each line item
     for item in input_json["LineItems"]:
-        # Convert Rate to float, removing any commas if present
+        # Convert numeric fields to float, removing any commas if present
         try:
             rate = float(item["Rate"].replace(",", "")) if item["Rate"] else 0
+            mrp_rate = float(item["MRP"].replace(",", "")) if item["MRP"] else 0
+            gst_rate = float(item["IGST Rate"].replace(",", "")) if item["IGST Rate"] else 0
+            
             # Calculate P Rate (1.06 times Rate) and format to 2 decimal places
             p_rate = round(rate * 1.06, 2)
             b_rate = round(p_rate * 1.11, 2)
             
-            # Create a new dictionary with all original items plus P Rate and B Rate
+            # Calculate the theoretical rate based on MRP
+            # Formula: MRP / (1.3 * 1.11 * 1.06 * (1 + GST_rate/100))
+            if mrp_rate > 0 and gst_rate >= 0:
+                calculated_rate = round(mrp_rate / (1.3 * 1.11 * 1.06 * (1 + gst_rate/100)), 2)
+                difference = round(rate - calculated_rate, 2)
+            else:
+                calculated_rate = 0
+                difference = 0
+            
+            # Create a new ordered dictionary to maintain field order
             new_item = {}
+            
+            # Copy all original fields and add calculated fields in appropriate positions
             for key, value in item.items():
                 new_item[key] = value
+                
+                # Add P Rate after Rate
                 if key == "Rate":
                     new_item["P Rate"] = f"{p_rate:.2f}"
-                if key == "Total":
-                    new_item["B Rate"] = f"{b_rate:.2f}" 
+                
+                # Add B Rate after Total (assuming Total is the last financial field)
+                elif key == "Total":
+                    new_item["B Rate"] = f"{b_rate:.2f}"
+                
+                # Add Calculated Rate and Difference after MRP
+                elif key == "MRP":
+                    new_item["Calculated Rate"] = f"{calculated_rate:.2f}"
+                    new_item["Difference"] = f"{difference:.2f}"
             
             # Replace the original item with the new one
             item.clear()
             item.update(new_item)
-        except (ValueError, TypeError) as e:
-            # Handle case where Rate is not a valid number
-            item["P Rate"] = ""
-            item["B Rate"] = ""
+            
+        except (ValueError, TypeError, ZeroDivisionError) as e:
+            # Handle case where conversion fails or division by zero
+            print(f"Error processing item: {e}")
+            # Add empty calculated fields
+            item["P Rate"] = "0.00"
+            item["B Rate"] = "0.00" 
+            item["Calculated Rate"] = "0.00"
+            item["Difference"] = "0.00"
     
     return input_json
 
