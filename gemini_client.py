@@ -11,7 +11,7 @@ import atexit
 
 load_dotenv()
 genai.configure(api_key=os.environ['GEMINI_API_KEY'])
-model = genai.GenerativeModel(model_name='gemini-2.0-flash')
+model = genai.GenerativeModel(model_name='gemini-2.5-flash')
 
 # Keep track of temporary files to clean up at exit
 temp_files = []
