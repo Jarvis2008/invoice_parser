@@ -139,6 +139,7 @@ Examples:
 - "2024-01-05" → "05/01/2024"
 - "05-01-24" → "05/01/2024"
 - "Jan 5 2024" → "05/01/2024"
+- "05.01.2024" → "05/01/2024"
 If a date cannot be determined or parsed with certainty, return an empty string ("").
 
 Fields to Extract for Each Line Item:
