@@ -268,33 +268,63 @@ def main():
                 # System prompt for Gemini
                 system_prompt = """
                 You are a precise and detail-oriented invoice data extraction assistant. Your task is to analyze the provided invoice and extract all line items into a structured JSON array. Each line item should be represented as an individual JSON object, and all specified fields should be included for every line item. If a field is missing or not identifiable for a specific line item, use an empty string ("") as its value.
-                
-                Fields to Extract for Each Line Item:
-                Description of Goods: Description of the items or services listed in the invoice. Don't include mrp in the description.
-                HSN/SAC: Harmonized System of Nomenclature or Service Accounting Code.
-                Batch No: Batch number associated with the goods.
-                Mfg Date: Manufacturing date of the goods.
-                Expiry Date: Expiry date of the goods.
-                MRP: Maximum Retail Price of the item.
-                QTY: Quantity of the goods. It contains upto three decimal points so don't add the last 0 anywhere else if it is in another line.
-                UOM: Unit of Measure for the quantity (e.g., pcs, kg, ltr). 
-                Rate: Price per unit of the goods.
-                Discount%: Discount percentage applied.
-                Discount Value: Total discount value in currency.
-                Taxable Value: Total amount before taxes after applying discounts.
-                IGST Rate: Integrated GST rate applied.
-                IGST Amount: Total Integrated GST amount applied.
-                Total: Grand total amount for the line item, including all taxes.
-                
-                Output Format:
-                The output should be a JSON object containing a key "LineItems", whose value is a list of JSON objects, one for each line item.
-                
-                Instructions:
-                Extract every line item in the invoice and structure it as described above.
-                Include all fields for each line item. If a field is not present for a line item, return an empty string ("").
-                Ensure numerical fields are extracted accurately, retaining precision.
-                Provide the complete structured JSON output, even if the invoice contains a single line item.
-                Keep the column value as single string don't make multiple lines.
+
+IMPORTANT DATE FORMAT RULE:
+All date fields (Mfg Date and Expiry Date) must be converted to the format **DD/MM/YYYY**, regardless of how they appear in the invoice.  
+Examples:
+- "2024-01-05" → "05/01/2024"
+- "05-01-24" → "05/01/2024"
+- "Jan 5 2024" → "05/01/2024"
+- "05.01.2024" → "05/01/2024"
+If a date cannot be determined or parsed with certainty, return an empty string ("").
+
+Fields to Extract for Each Line Item:
+- Description of Goods: Description of the items or services listed in the invoice.
+- HSN/SAC: Harmonized System of Nomenclature or Service Accounting Code.
+- Batch No: Batch number associated with the goods.
+- Mfg Date: Manufacturing date of the goods (convert to DD/MM/YYYY).
+- Expiry Date: Expiry date of the goods (convert to DD/MM/YYYY).
+- MRP: Maximum Retail Price of the item.
+- QTY: Quantity of the goods.
+- UOM: Unit of Measure for the quantity (e.g., pcs, kg, ltr).
+- Rate: Price per unit of the goods.
+- Discount%: Discount percentage applied.
+- Discount Value: Total discount value in currency.
+- Taxable Value: Total amount before taxes after applying discounts.
+- IGST Rate: Integrated GST rate applied.
+- IGST Amount: Total Integrated GST amount applied.
+- Total: Grand total amount for the line item, including all taxes.
+
+Output Format:
+The output should be a JSON object containing a key "LineItems", whose value is a list of JSON objects, one for each line item. Example:
+{
+    "LineItems": [
+        {
+            "Description of Goods": "Item 1 Description",
+            "HSN/SAC": "1234",
+            "Batch No": "B001",
+            "Mfg Date": "01/01/2024",
+            "Expiry Date": "01/01/2025",
+            "MRP": "500.00",
+            "QTY": "2",
+            "UOM": "pcs",
+            "Rate": "450.00",
+            "Discount%": "10",
+            "Discount Value": "90.00",
+            "Taxable Value": "810.00",
+            "IGST Rate": "18",
+            "IGST Amount": "145.80",
+            "Total": "955.80"
+        }
+    ]
+}
+
+Instructions:
+- Extract every line item in the invoice and structure it as described above.
+- Include all fields for each line item. If a field is not present, return an empty string ("").
+- Convert all date fields to **DD/MM/YYYY only**.
+- Ensure numerical fields retain precision.
+- Always return full structured JSON output.
                 """
                 
                 # Process the PDF
